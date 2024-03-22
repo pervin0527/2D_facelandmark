@@ -82,7 +82,7 @@ def main(args):
     test_dataset = WFLWDataset(test_file)
     test_dataloader = DataLoader(test_dataset, batch_size=args.batch_size, num_workers=args.num_workers)
 
-    if args.version == "v1":
+    if args.model_version == "v1":
         model = LandmarkEstimationV1().to(args.device)
         auxiliary_net = AuxiliaryNetV1().to(args.device)
     else:

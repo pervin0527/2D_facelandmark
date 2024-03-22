@@ -5,10 +5,11 @@ import torch
 import numpy as np
 
 from tqdm import tqdm
+from torchvision import datasets
+from torchvision import transforms
 from torch.utils.data import DataLoader
 
 from utils.basic_utils import Args
-from data.dataset import WFLWDataset
 from model.model1 import LandmarkEstimationV1
 from model.model2 import LandmarkEstimationV2
 
@@ -79,27 +80,28 @@ def eval(model, dataloader, args):
         print(f'nme: {np.mean(nme_list):.4}')
         print(f"inference_cost_time: {np.mean(cost_time):.4f}")
 
-
 def main(args):
-    test_file = f"{args.data_dir}/test/list.txt"
-    test_dataset = WFLWDataset(test_file)
-    test_dataloader = DataLoader(test_dataset, batch_size=args.batch_size, num_workers=args.num_workers)
+    transform = transforms.Compose([transforms.Resize((args.image_size, args.image_size)),
+                                    transforms.ToTensor()])
+    dataset = datasets.ImageFolder(root=args.data_dir, transform=transform)
+    dataloader = DataLoader(dataset, batch_size=args.batch_size, num_workers=args.num_workers)
 
     if args.version == "v1":
         model = LandmarkEstimationV1().to(args.device)
     else:
         model = LandmarkEstimationV2().to(args.device)
 
-    ckpt = torch.load(args.ckpt_dir)
-    model.load_state_dict(ckpt)
-    
-    eval(model, test_dataloader, args)
+    weights = torch.load(args.ckpt_dir)
+    model.load_state_dict(weights)
+
+    eval(model, dataloader, args)
+
 
 if __name__ == "__main__":
     save_dir = "./runsV1"
-    args = Args(f"{save_dir}/config.yaml")
+    data_dir = "/home/pervinco//Datasets/CelebA-HQ-256"
 
-    args.save_dir = save_dir
+    args = Args(f"{save_dir}/config.yaml")
     args.ckpt_dir = f"{save_dir}/ckpt/best.pth"
     args.num_workers = os.cpu_count()
     args.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")

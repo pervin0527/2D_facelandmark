@@ -1,5 +1,6 @@
 import os
 import yaml
+from datetime import datetime
 
 class Args:
     def __init__(self, hyp_dir):
@@ -8,11 +9,12 @@ class Args:
         for key, value in self.hyps.items():
             setattr(self, key, value)  # 객체에 key라는 변수를 생성하고, value를 값으로 할당함.
         
-        # save_dir이 정의되어 있지 않으므로, 이를 self.hyps에서 추출하거나 기본값 설정
-        self.save_dir = self.hyps.get("save_dir", "./saved_configs")
+        current_time = datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
+        base_save_dir = self.hyps.get("save_dir", "./saved_configs")
+        self.save_dir = os.path.join(base_save_dir, current_time)
         
         self.make_dir(self.save_dir)
-        self.save_config()  # save_config 메서드를 수정하여 인자 없이 호출
+        self.save_config()
 
     def load_config(self, config_path):
         with open(config_path, 'r') as file:
@@ -20,7 +22,6 @@ class Args:
         return config
 
     def save_config(self):
-        # self.hyps와 self.save_dir을 사용하여 현재 설정 저장
         save_path = os.path.join(self.save_dir, "config.yaml")
         with open(save_path, 'w') as file:
             yaml.dump(self.hyps, file)
@@ -28,10 +29,10 @@ class Args:
 
     def make_dir(self, path):
         if not os.path.exists(path):
-            os.makedirs(path)
             os.makedirs(f"{path}/imgs")
             os.makedirs(f"{path}/ckpt")
             os.makedirs(f"{path}/logs")
+            os.makedirs(f"{path}/test")
 
             print(f"{path} is generated.")
             
