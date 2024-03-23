@@ -96,7 +96,7 @@ def main(args):
     optimizer = torch.optim.Adam([{'params': model.parameters()}, {'params': auxiliary_net.parameters()}],
                                  lr=args.init_lr,
                                  weight_decay=args.weight_decay)
-    scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(optimizer, T_0=50, T_mult=2, eta_min=args.min_lr)
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(optimizer, T_0=args.T_0, T_mult=args.T_mult, eta_min=args.min_lr)
 
     best_valid_loss = float('inf')
     for epoch in range(args.epochs):
@@ -123,7 +123,7 @@ def main(args):
 
 
 if __name__ == "__main__":
-    args = Args("./hyps.yaml")
+    args = Args("./hyps.yaml", is_train=True)
     args.num_workers = os.cpu_count()
     args.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     main(args)

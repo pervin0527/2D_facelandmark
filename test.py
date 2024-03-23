@@ -85,7 +85,7 @@ def main(args):
     test_dataset = WFLWDataset(test_file)
     test_dataloader = DataLoader(test_dataset, batch_size=args.batch_size, num_workers=args.num_workers)
 
-    if args.version == "v1":
+    if args.model_version == "v1":
         model = LandmarkEstimationV1().to(args.device)
     else:
         model = LandmarkEstimationV2().to(args.device)
@@ -96,8 +96,8 @@ def main(args):
     eval(model, test_dataloader, args)
 
 if __name__ == "__main__":
-    save_dir = "./runsV1"
-    args = Args(f"{save_dir}/config.yaml")
+    save_dir = "./runs/2024_03_22_18_02_44"
+    args = Args(f"{save_dir}/config.yaml", is_train=False)
 
     args.save_dir = save_dir
     args.ckpt_dir = f"{save_dir}/ckpt/best.pth"
