@@ -96,11 +96,14 @@ def main(args):
     optimizer = torch.optim.Adam([{'params': model.parameters()}, {'params': auxiliary_net.parameters()}],
                                  lr=args.init_lr,
                                  weight_decay=args.weight_decay)
-    scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(optimizer, T_0=args.T_0, T_mult=args.T_mult, eta_min=args.min_lr)
+    # scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(optimizer, T_0=args.T_0, T_mult=args.T_mult, eta_min=args.min_lr)
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', patience=args.lr_patience, verbose=True)
 
     best_valid_loss = float('inf')
     for epoch in range(args.epochs):
-        current_lr = scheduler.get_last_lr()[0]
+        # current_lr = scheduler.get_last_lr()[0]
+        current_lr = optimizer.param_groups[0]['lr']
+
         print(f"\nEpoch : {epoch}|{args.epochs}, LR : {current_lr:.6f}")
         train_loss = train(train_dataloader, model, auxiliary_net, criterion, optimizer, epoch, args.device)
         valid_loss = eval(test_dataloader, model, auxiliary_net, criterion, args.device)
@@ -116,8 +119,8 @@ def main(args):
             print(f"Valid Loss improved, saving model.")
 
         visualize_inference(model, auxiliary_net, test_dataloader, args.device, args.save_dir, epoch)
-        # scheduler.step(valid_loss)
-        scheduler.step()
+        # scheduler.step()
+        scheduler.step(valid_loss)
 
     writer.close()
 

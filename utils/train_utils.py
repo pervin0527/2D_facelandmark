@@ -12,7 +12,7 @@ def visualize_inference(model, auxiliary_net, dataloader, device, save_path, epo
 
     dataiter = iter(dataloader)
     images, landmark_gt, _, _ = next(dataiter)
-    image = images[0].unsqueeze(0).to(device)
+    image = images[10].unsqueeze(0).to(device)
 
     with torch.no_grad():
         _, pred_landmark = model(image)

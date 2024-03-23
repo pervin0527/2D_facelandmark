@@ -39,6 +39,7 @@ class LandmarkEstimationV2(nn.Module):
         self.avg_pool1 = nn.AvgPool2d(14)
         self.avg_pool2 = nn.AvgPool2d(7)
         self.fc = nn.Linear(176, 196)
+        # self.fc = nn.Linear(8384, 196)
 
     def forward(self, x):
         x = self.relu(self.bn1(self.conv1(x)))
@@ -81,6 +82,7 @@ class AuxiliaryNetV2(nn.Module):
         self.conv4 = conv_bn_silu(32, 128, 7, 1, activation=False)
         self.max_pool1 = nn.MaxPool2d(3)
         self.fc1 = nn.Linear(128, 32)
+        # self.fc1 = nn.Linear(1152, 32)
         self.fc2 = nn.Linear(32, 3)
 
     def forward(self, x):
